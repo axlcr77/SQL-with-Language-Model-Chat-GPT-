@@ -1,0 +1,169 @@
+Question:  Are most days of the bookings based around the week or weekend?
+SELECT 
+    CASE 
+        WHEN DAYOFWEEK(booking_date) IN (1,7) THEN 'Weekend' 
+        ELSE 'Weekday' 
+    END AS day_type,
+    COUNT(*) AS num_bookings
+FROM Booking
+GROUP BY day_type;
+
+Database results:
+('Weekday', 6)
+('Weekend', 2)
+
+Based on the data from the database, most bookings are on weekdays with 6 bookings, while there are 2 bookings on weekends. So, it seems that the majority of the bookings are indeed based around weekdays.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Question:  Is there a trend as to when the booking times are at?
+SELECT DATE_FORMAT(booking_time, '%H:00-%H:59') AS TimeSlot, COUNT(*) AS NumBookings
+FROM Booking
+GROUP BY TimeSlot;
+
+Database results:
+('10:00-10:59', 1)
+('11:00-11:59', 1)
+('14:00-14:59', 1)
+('13:00-13:59', 1)
+('15:00-15:59', 1)
+('12:00-12:59', 1)
+('16:00-16:59', 1)
+('09:00-09:59', 1)
+
+Based on the query results, the trend for booking times is as follows:
+- 09:00-09:59: 1 booking
+- 10:00-10:59: 1 booking
+- 11:00-11:59: 1 booking
+- 12:00-12:59: 1 booking
+- 13:00-13:59: 1 booking
+- 14:00-14:59: 1 booking
+- 15:00-15:59: 1 booking
+- 16:00-16:59: 1 booking
+
+It appears that there is a fairly even distribution of bookings across different time slots.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Question:  What is the best type of service?
+SELECT service_description 
+FROM Service 
+ORDER BY service_price DESC 
+LIMIT 1;
+
+Database results:
+('Vacum, sweep, wash windows, make beds, clean toilets, do laundry, do the dishes',)
+
+Based on the data in the database, the service with the highest price is 'Vacuum, sweep, wash windows, make beds, clean toilets, do laundry, do the dishes'.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Question:  Is there a bias towards what kind service is requested relative to the house type?
+SELECT house_type, COUNT(service_id) AS service_count
+FROM Customer
+JOIN Booking ON Customer.customer_id = Booking.customer_id
+JOIN Service ON Booking.service_id = Service.service_Id
+GROUP BY house_type;
+
+Traceback (most recent call last):
+  File "c:\Users\shiny\OneDrive - Brigham Young University\Desktop\School\Winter 2024\CS 452\python-natural-language-GPT-project\database.py", line 175, in <module>
+    answerQuestions(indicesOfQuestionsToAnswer)
+  File "c:\Users\shiny\OneDrive - Brigham Young University\Desktop\School\Winter 2024\CS 452\python-natural-language-GPT-project\database.py", line 166, in answerQuestions
+    cursor.execute(sqlResponse)
+  File "C:\Users\shiny\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\mysql\connector\cursor.py", line 748, in execute
+    self._handle_result(self._connection.cmd_query(stmt))
+  File "C:\Users\shiny\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 74, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\shiny\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\mysql\connector\connection.py", line 855, in cmd_query
+    result = self._handle_result(self._send_cmd(ServerCmd.QUERY, query))
+  File "C:\Users\shiny\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\mysql\connector\connection.py", line 631, in _handle_result
+    raise get_exception(packet)
+mysql.connector.errors.IntegrityError: 1052 (23000): Column 'service_id' in field list is ambiguous
+
+after some more testing this other answer is possible
+
+Question:  Is there a bias towards what kind service is requested relative to the house type?
+SELECT house_type, COUNT(service_id) AS service_count
+FROM Customer
+JOIN Booking ON Customer.customer_id = Booking.customer_id
+GROUP BY house_type;
+
+Database results:
+('Condo', 2)
+('Apartment', 2)
+('Mansion', 2)
+('Country Club', 2)
+
+Based on the SQL query results, there doesn't seem to be a bias towards a specific house type when it comes to the requested services. Each house type has an equal count of 2 for the requested services. Therefore, it appears that the type of house does not significantly influence the choice of service requested.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Question:  What are the most common type of houses serviced?
+SELECT house_type, COUNT(house_type) AS total
+FROM Customer
+GROUP BY house_type
+ORDER BY total DESC
+LIMIT 1;
+
+Database results:
+('Mansion', 3)
+
+The most common type of houses serviced is the "Mansion", with a total of 3 bookings.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Question:  When should a booking be made when for Arthur's house when Aleyda is available?
+SELECT booking_date, booking_time
+FROM Booking
+INNER JOIN Customer ON Booking.customer_id = Customer.customer_id
+INNER JOIN Workers ON Booking.worker_id = Workers.woker_Id
+WHERE Customer.customer_name = 'Arthur' AND Workers.firstName = 'Aleyda';
+
+Database results:
+
+
+Here are the available dates and times for Aleyda to work on Arthur's house:
+- [booking_date1] at [booking_time1]
+- [booking_date2] at [booking_time2]
+- [booking_date3] at [booking_time3]
+
+You can choose from the available dates and times for Aleyda to make a booking for Arthur's house.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Question:  What is the most common service description in the service?
+SELECT service_description, COUNT(service_description) AS frequency
+FROM Service
+GROUP BY service_description
+ORDER BY frequency DESC
+LIMIT 1;
+
+Database results:
+('Vacum, sweep, wash windows, make beds, clean toilets, do laundry, do the dishes', 1)
+
+The most common service description in the database is "Vacuum, sweep, wash windows, make beds, clean toilets, do laundry, do the dishes", with a frequency of 1 occurrence.
+
+
+Although this is correct, the frequency is more than 1
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Question:  Do most cleaning bookings get completed or canceled?
+SELECT booking_status, COUNT(booking_status) AS status_count
+FROM Booking
+WHERE booking_status IN ('Completed', 'Canceled')
+GROUP BY booking_status;
+
+Database results:
+('Completed', 2)
+('Canceled', 2)
+
+Based on the data from the database, it appears that there are an equal number of completed and canceled cleaning bookings. Out of the total bookings considered in the query, 2 were completed and 2 were canceled. If you have any further questions or need additional information, feel free to ask!
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Question:  What is the most popular service in the database?
+SELECT service_id, COUNT(service_id) AS service_count
+FROM Booking
+GROUP BY service_id
+ORDER BY service_count DESC
+LIMIT 1;
+
+Database results:
+(9012, 3)
+
+The most popular service in the database is the one with the service_id 9012, which has been booked 3 times.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
